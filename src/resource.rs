@@ -99,11 +99,54 @@ impl Resources {
 /// # Returns
 /// * `Option<String>` - Brand name if successfully inferred, None otherwise
 pub fn infer_camera_brand(camera_model: &str) -> Option<String> {
-    let brand = camera_model
-        .to_lowercase()
-        .split_whitespace()
-        .next()
-        .map(|s| s.to_string());
+    let model_lower = camera_model.to_lowercase();
+
+    // Special handling for Sony cameras
+    if model_lower.starts_with("ilce-")
+        || model_lower.starts_with("ilca-")
+        || model_lower.starts_with("ilme-")
+    {
+        return Some("sony".to_string());
+    }
+
+    // Special handling for Canon cameras
+    if model_lower.starts_with("eos ") || model_lower.starts_with("eos-") {
+        return Some("canon".to_string());
+    }
+
+    // Special handling for Nikon cameras
+    if model_lower.starts_with("d")
+        && model_lower
+            .chars()
+            .nth(1)
+            .map_or(false, |c| c.is_ascii_digit())
+    {
+        return Some("nikon".to_string());
+    }
+    if model_lower.starts_with("z")
+        && model_lower
+            .chars()
+            .nth(1)
+            .map_or(false, |c| c.is_ascii_digit())
+    {
+        return Some("nikon".to_string());
+    }
+
+    // Special handling for Fujifilm cameras
+    if model_lower.starts_with("x-") || model_lower.starts_with("x ") {
+        return Some("fujifilm".to_string());
+    }
+    if model_lower.starts_with("gfx") {
+        return Some("fujifilm".to_string());
+    }
+
+    // Special handling for Panasonic cameras
+    if model_lower.starts_with("dc-") || model_lower.starts_with("lumix ") {
+        return Some("panasonic".to_string());
+    }
+
+    // Fallback to first word approach
+    let brand = model_lower.split_whitespace().next().map(|s| s.to_string());
 
     if let Some(brand) = brand {
         if !brand.is_empty() {
@@ -221,19 +264,46 @@ mod tests {
 
     #[test]
     fn test_infer_camera_brand() {
-        // Test common camera brands
+        // Test Sony cameras with ILCE/ILCA/ILME prefixes
+        assert_eq!(infer_camera_brand("ILCE-7CM2"), Some("sony".to_string()));
+        assert_eq!(infer_camera_brand("ILCE-7RM5"), Some("sony".to_string()));
+        assert_eq!(infer_camera_brand("ILCA-99M2"), Some("sony".to_string()));
+        assert_eq!(infer_camera_brand("ILME-FX3"), Some("sony".to_string()));
+
+        // Test Canon cameras with EOS prefix
         assert_eq!(
             infer_camera_brand("Canon EOS R10"),
             Some("canon".to_string())
         );
+        assert_eq!(infer_camera_brand("EOS R5"), Some("canon".to_string()));
+        assert_eq!(
+            infer_camera_brand("EOS-1D X Mark III"),
+            Some("canon".to_string())
+        );
+
+        // Test Nikon cameras with D and Z series
         assert_eq!(infer_camera_brand("NIKON D850"), Some("nikon".to_string()));
-        assert_eq!(infer_camera_brand("SONY A7R IV"), Some("sony".to_string()));
+        assert_eq!(infer_camera_brand("D850"), Some("nikon".to_string()));
+        assert_eq!(infer_camera_brand("Z9"), Some("nikon".to_string()));
+        assert_eq!(infer_camera_brand("Z6 II"), Some("nikon".to_string()));
+
+        // Test Fujifilm cameras with X and GFX series
         assert_eq!(
             infer_camera_brand("Fujifilm X-T4"),
             Some("fujifilm".to_string())
         );
+        assert_eq!(infer_camera_brand("X-T4"), Some("fujifilm".to_string()));
+        assert_eq!(infer_camera_brand("X-Pro3"), Some("fujifilm".to_string()));
+        assert_eq!(infer_camera_brand("GFX 100S"), Some("fujifilm".to_string()));
+
+        // Test Panasonic cameras with DC and Lumix prefixes
         assert_eq!(
             infer_camera_brand("Panasonic Lumix S5"),
+            Some("panasonic".to_string())
+        );
+        assert_eq!(infer_camera_brand("DC-S5"), Some("panasonic".to_string()));
+        assert_eq!(
+            infer_camera_brand("Lumix GH6"),
             Some("panasonic".to_string())
         );
 
@@ -242,14 +312,10 @@ mod tests {
         assert_eq!(infer_camera_brand("   "), None);
         assert_eq!(infer_camera_brand("Canon"), Some("canon".to_string()));
 
-        // Test special characters
+        // Test fallback behavior for unknown brands
         assert_eq!(
-            infer_camera_brand("Canon-EOS-R10"),
-            Some("canon-eos-r10".to_string())
-        );
-        assert_eq!(
-            infer_camera_brand("Canon_EOS_R10"),
-            Some("canon_eos_r10".to_string())
+            infer_camera_brand("Unknown Camera Model"),
+            Some("unknown".to_string())
         );
     }
 

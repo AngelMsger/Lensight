@@ -2,7 +2,14 @@
 
 This project follows [Semantic Versioning](https://semver.org/).
 
-## [0.1.0] - 2024-05-04
+## [1.0.1] - 2025-07-26
+
+### Fixed
+
+- Fixed Sony camera model recognition for ILCE/ILCA/ILME prefixes (e.g., ILCE-7CM2 for Sony A7C2)
+- Improved camera brand detection for Canon EOS, Nikon D/Z series, Fujifilm X/GFX series, and Panasonic DC/Lumix series
+
+## [0.1.0] - 2025-05-04
 
 ### Added
 
