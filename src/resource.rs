@@ -119,7 +119,7 @@ pub fn infer_camera_brand(camera_model: &str) -> Option<String> {
         && model_lower
             .chars()
             .nth(1)
-            .map_or(false, |c| c.is_ascii_digit())
+            .is_some_and(|c| c.is_ascii_digit())
     {
         return Some("nikon".to_string());
     }
@@ -127,7 +127,7 @@ pub fn infer_camera_brand(camera_model: &str) -> Option<String> {
         && model_lower
             .chars()
             .nth(1)
-            .map_or(false, |c| c.is_ascii_digit())
+            .is_some_and(|c| c.is_ascii_digit())
     {
         return Some("nikon".to_string());
     }
