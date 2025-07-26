@@ -12,6 +12,7 @@ This project follows [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - Code quality improvements: replaced `map_or` with `is_some_and` for better readability
+- Code quality improvements: replaced `{}` placeholders with direct variable interpolation in `println!` and `format!` macros
 
 ## [0.1.0] - 2025-05-04
 

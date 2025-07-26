@@ -239,10 +239,7 @@ pub fn load_camera_logo(
         }
     }
 
-    println!(
-        "[INFO] No logo available for camera brand '{brand}', skipping logo",
-        brand = brand
-    );
+    println!("[INFO] No logo available for camera brand '{brand}', skipping logo");
     Ok(None)
 }
 
