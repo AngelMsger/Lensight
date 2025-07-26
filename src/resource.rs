@@ -68,7 +68,7 @@ impl Resources {
     /// Returns an error if the font file cannot be read or parsed
     fn load_font_from_file(path: &str) -> Result<Font<'static>, Box<dyn Error>> {
         if !Path::new(path).exists() {
-            println!("[INFO] Font file not found in {}, using default font", path);
+            println!("[INFO] Font file not found in {path}, using default font");
             return Ok(Self::load_default_font());
         }
 
@@ -198,30 +198,21 @@ pub fn load_camera_logo(
     let brand = match infer_camera_brand(camera_model) {
         Some(brand) => brand,
         None => {
-            println!(
-                "[WARN] Could not extract brand name from camera model: {}",
-                camera_model
-            );
+            println!("[WARN] Could not extract brand name from camera model: {camera_model}");
             return Ok(None);
         }
     };
 
     // Then try to load from external file
-    let logo_path = format!("./logos/{}.png", brand);
+    let logo_path = format!("./logos/{brand}.png");
     if Path::new(&logo_path).exists() {
         match image::open(&logo_path) {
             Ok(img) => {
-                println!(
-                    "[INFO] Using external logo file for camera brand '{}'",
-                    brand
-                );
+                println!("[INFO] Using external logo file for camera brand '{brand}'");
                 return Ok(Some(img));
             }
             Err(e) => {
-                println!(
-                    "[WARN] Failed to load logo for camera brand '{}' from file: {}",
-                    brand, e
-                );
+                println!("[WARN] Failed to load logo for camera brand '{brand}' from file: {e}");
             }
         }
     }
@@ -239,21 +230,18 @@ pub fn load_camera_logo(
     if let Some(base64_str) = base64_logo {
         match CameraLogos::load_from_base64(base64_str) {
             Ok(img) => {
-                println!("[INFO] Using hardcoded logo for camera brand '{}'", brand);
+                println!("[INFO] Using hardcoded logo for camera brand '{brand}'");
                 return Ok(Some(img));
             }
             Err(e) => {
-                println!(
-                    "[WARN] Failed to load hardcoded logo for camera brand '{}': {}",
-                    brand, e
-                );
+                println!("[WARN] Failed to load hardcoded logo for camera brand '{brand}': {e}");
             }
         }
     }
 
     println!(
-        "[INFO] No logo available for camera brand '{}', skipping logo",
-        brand
+        "[INFO] No logo available for camera brand '{brand}', skipping logo",
+        brand = brand
     );
     Ok(None)
 }

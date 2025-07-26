@@ -42,8 +42,8 @@ pub fn add_info_bar(
         let camera_model = exif_info.camera_model.trim_matches('"');
         let lens_model = exif_info.lens_model.trim_matches('"');
 
-        println!("[INFO] Processing image: {}x{}", width, height);
-        println!("[INFO] Camera: {}, Lens: {}", camera_model, lens_model);
+        println!("[INFO] Processing image: {width}x{height}");
+        println!("[INFO] Camera: {camera_model}, Lens: {lens_model}");
 
         let camera_text_height = resources.scale_bold.y.ceil() as u32;
         let lens_text_height = resources.scale_regular.y.ceil() as u32;
@@ -80,7 +80,7 @@ pub fn add_info_bar(
             exif_info.shutter_speed.replace('"', ""),
             exif_info.iso.replace('"', "")
         );
-        println!("[INFO] Camera settings: {}", params);
+        println!("[INFO] Camera settings: {params}");
 
         let param_width = text_width(&resources.font_regular, resources.scale_regular, &params);
         let param_x = width as i32 - padding as i32 - param_width;
