@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] - 2025-09-01
+
+### Improved
+
+- Add builtin iPhone logo.
+
 ## [1.0.1] - 2025-07-26
 
 ### Fixed

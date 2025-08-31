@@ -9,7 +9,7 @@ def convert_to_base64(image_path):
 
 def main():
     logos_dir = Path('logos')
-    target_brands = ['canon', 'fujifilm', 'nikon', 'panasonic', 'sony']
+    target_brands = ['canon', 'fujifilm', 'nikon', 'panasonic', 'sony', 'iphone']
 
     # Create src/logos directory if it doesn't exist
     src_logos_dir = Path('src/logos')
