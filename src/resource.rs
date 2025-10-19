@@ -225,6 +225,7 @@ pub fn load_camera_logo(
         "panasonic" => Some(logos::PANASONIC),
         "sony" => Some(logos::SONY),
         "iphone" => Some(logos::IPHONE),
+        "dji" => Some(logos::DJI),
         _ => None,
     };
 

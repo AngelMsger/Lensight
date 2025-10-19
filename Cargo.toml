@@ -1,6 +1,6 @@
 [package]
 name = "lensight"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2021"
 description = "A command-line tool for embedding camera metadata and shooting details into photos."
 authors = ["AngelMsger <angelmsger@vip.qq.com>"]

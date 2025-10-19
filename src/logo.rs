@@ -32,4 +32,5 @@ pub mod logos {
     pub const PANASONIC: &str = include_str!("logos/panasonic.base64");
     pub const SONY: &str = include_str!("logos/sony.base64");
     pub const IPHONE: &str = include_str!("logos/iphone.base64");
+    pub const DJI: &str = include_str!("logos/dji.base64");
 }
