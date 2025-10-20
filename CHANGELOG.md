@@ -2,6 +2,19 @@
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] - 2025-01-27
+
+### Fixed
+
+- Fixed information bar height issue for vertical and low-resolution images
+- Fixed text and logo overlapping issues in small information bars
+
+### Improved
+
+- Information bar height is now automatically limited to 5% of image height for better proportions
+- Adaptive font and logo sizing based on actual information bar dimensions
+- Better visual balance for vertical images and small resolution photos
+
 ## [1.0.2] - 2025-09-01
 
 ### Improved

@@ -3,7 +3,7 @@
 //! This module handles loading and managing resources such as fonts and camera logos.
 
 use crate::logo::{logos, CameraLogos};
-use rusttype::{Font, Scale};
+use rusttype::Font;
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufReader, Read};
@@ -16,43 +16,25 @@ pub struct Resources {
     pub font_bold: Font<'static>,
     /// Regular font for lens model and settings
     pub font_regular: Font<'static>,
-    /// Scale for bold font
-    pub scale_bold: Scale,
-    /// Scale for regular font
-    pub scale_regular: Scale,
 }
 
 impl Resources {
     /// Creates a new Resources instance
-    ///
-    /// # Arguments
-    /// * `info_height` - Height of the information bar in pixels
     ///
     /// # Returns
     /// * `Result<Resources, Box<dyn std::error::Error>>` - Ok if successful
     ///
     /// # Errors
     /// Returns an error if fonts cannot be loaded
-    pub fn new(info_height: u32) -> Result<Self, Box<dyn Error>> {
+    pub fn new() -> Result<Self, Box<dyn Error>> {
         let font_bold = Self::load_font_from_file("./fonts/DejaVuSans-Bold.ttf")
             .unwrap_or_else(|_| Self::load_default_font());
         let font_regular = Self::load_font_from_file("./fonts/DejaVuSans.ttf")
             .unwrap_or_else(|_| Self::load_default_font());
 
-        let scale_bold = Scale {
-            x: info_height as f32 * 0.4,
-            y: info_height as f32 * 0.4,
-        };
-        let scale_regular = Scale {
-            x: info_height as f32 * 0.3,
-            y: info_height as f32 * 0.3,
-        };
-
         Ok(Resources {
             font_bold,
             font_regular,
-            scale_bold,
-            scale_regular,
         })
     }
 
@@ -307,14 +289,19 @@ mod tests {
     }
 
     #[test]
-    fn test_resources_scale_calculation() {
-        let info_height = 180;
-        let resources = Resources::new(info_height).unwrap();
+    fn test_resources_creation() {
+        let resources = Resources::new().unwrap();
 
-        // Test scale calculations
-        assert_eq!(resources.scale_bold.x, info_height as f32 * 0.4);
-        assert_eq!(resources.scale_bold.y, info_height as f32 * 0.4);
-        assert_eq!(resources.scale_regular.x, info_height as f32 * 0.3);
-        assert_eq!(resources.scale_regular.y, info_height as f32 * 0.3);
+        // Test that fonts are loaded successfully by checking if we can get glyph metrics
+        let v_metrics_bold = resources
+            .font_bold
+            .v_metrics(rusttype::Scale::uniform(12.0));
+        let v_metrics_regular = resources
+            .font_regular
+            .v_metrics(rusttype::Scale::uniform(12.0));
+
+        // Both fonts should have valid metrics
+        assert!(v_metrics_bold.ascent > 0.0);
+        assert!(v_metrics_regular.ascent > 0.0);
     }
 }

@@ -33,9 +33,17 @@ pub fn add_info_bar(
     custom_logo_path: Option<&Path>,
 ) -> Result<DynamicImage, Box<dyn std::error::Error>> {
     let (width, height) = img.dimensions();
-    let padding = 32u32;
-    let mut new_img: RgbaImage =
-        ImageBuffer::from_pixel(width, height + info_height, Rgba([255, 255, 255, 255]));
+
+    // 计算自适应底栏高度，不超过图片高度的5%
+    let max_info_height = (height as f32 * 0.05).round() as u32;
+    let adaptive_info_height = info_height.min(max_info_height).max(60); // 最小60像素
+
+    let padding = (adaptive_info_height as f32 * 0.1).round() as u32; // 自适应padding
+    let mut new_img: RgbaImage = ImageBuffer::from_pixel(
+        width,
+        height + adaptive_info_height,
+        Rgba([255, 255, 255, 255]),
+    );
     image::imageops::overlay(&mut new_img, &img.to_rgba8(), 0, 0);
 
     if let Ok(exif_info) = crate::exif::read_exif_info(input_path) {
@@ -44,11 +52,22 @@ pub fn add_info_bar(
 
         println!("[INFO] Processing image: {width}x{height}");
         println!("[INFO] Camera: {camera_model}, Lens: {lens_model}");
+        println!("[INFO] Adaptive info height: {adaptive_info_height} (max: {max_info_height})");
 
-        let camera_text_height = resources.scale_bold.y.ceil() as u32;
-        let lens_text_height = resources.scale_regular.y.ceil() as u32;
+        // 基于自适应底栏高度重新计算字体缩放
+        let adaptive_scale_bold = Scale {
+            x: adaptive_info_height as f32 * 0.4,
+            y: adaptive_info_height as f32 * 0.4,
+        };
+        let adaptive_scale_regular = Scale {
+            x: adaptive_info_height as f32 * 0.3,
+            y: adaptive_info_height as f32 * 0.3,
+        };
+
+        let camera_text_height = adaptive_scale_bold.y.ceil() as u32;
+        let lens_text_height = adaptive_scale_regular.y.ceil() as u32;
         let total_text_height = camera_text_height + lens_text_height + 8;
-        let left_text_top = height + (info_height - total_text_height) / 2;
+        let left_text_top = height + (adaptive_info_height - total_text_height) / 2;
         let camera_y = left_text_top;
         let lens_y = camera_y + camera_text_height + 8;
         draw_text_mut(
@@ -56,7 +75,7 @@ pub fn add_info_bar(
             Rgba([0, 0, 0, 255]),
             padding as i32,
             camera_y as i32,
-            resources.scale_bold,
+            adaptive_scale_bold,
             &resources.font_bold,
             camera_model,
         );
@@ -65,7 +84,7 @@ pub fn add_info_bar(
             Rgba([80, 80, 80, 255]),
             padding as i32,
             lens_y as i32,
-            resources.scale_regular,
+            adaptive_scale_regular,
             &resources.font_regular,
             lens_model,
         );
@@ -82,23 +101,24 @@ pub fn add_info_bar(
         );
         println!("[INFO] Camera settings: {params}");
 
-        let param_width = text_width(&resources.font_regular, resources.scale_regular, &params);
+        let param_width = text_width(&resources.font_regular, adaptive_scale_regular, &params);
         let param_x = width as i32 - padding as i32 - param_width;
-        let param_y =
-            height as i32 + (info_height as i32 - resources.scale_regular.y.ceil() as i32) / 2;
+        let param_y = height as i32
+            + (adaptive_info_height as i32 - adaptive_scale_regular.y.ceil() as i32) / 2;
         draw_text_mut(
             &mut new_img,
             Rgba([0, 0, 0, 255]),
             param_x,
             param_y,
-            resources.scale_regular,
+            adaptive_scale_regular,
             &resources.font_regular,
             &params,
         );
 
         // Try to load and draw logo, but continue even if it fails
         if let Ok(Some(logo)) = crate::resource::load_camera_logo(camera_model, custom_logo_path) {
-            let logo_target_height = (info_height as f32 * 0.65).round() as u32;
+            // 自适应logo高度，确保不会与文字重叠
+            let logo_target_height = (adaptive_info_height as f32 * 0.5).round() as u32;
             let logo = logo.resize(
                 logo.width() * logo_target_height / logo.height(),
                 logo_target_height,
@@ -106,7 +126,7 @@ pub fn add_info_bar(
             );
             let logo_rgba = logo.to_rgba8();
             let logo_x = (width / 2).saturating_sub(logo_rgba.width() / 2);
-            let logo_y = height + (info_height - logo_rgba.height()) / 2;
+            let logo_y = height + (adaptive_info_height - logo_rgba.height()) / 2;
             for y in 0..logo_rgba.height() {
                 for x in 0..logo_rgba.width() {
                     let pixel = logo_rgba.get_pixel(x, y);

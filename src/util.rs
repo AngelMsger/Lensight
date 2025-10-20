@@ -86,7 +86,7 @@ pub fn process_single_file(
     custom_logo_path: Option<&Path>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let orig_img = image::open(input)?;
-    let resources = crate::resource::Resources::new(info_height)?;
+    let resources = crate::resource::Resources::new()?;
     let watermarked = crate::image_processor::add_info_bar(
         orig_img.clone(),
         input,
